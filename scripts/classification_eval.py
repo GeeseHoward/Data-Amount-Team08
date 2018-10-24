@@ -34,21 +34,33 @@ def main():
     step = int(num_data_pts/1000)
 
     train_sizes = list(range(step,num_data_pts,step))
-
+    X=array[:,:-1]
+    y=array[:,-1]
     for train_size in train_sizes:
-        X_train, X_test, y_train, y_test = model_selection.train_test_split(array[:,:-1],
-                                                array[:,-1],train_size=train_size)
-        model = LogisticRegression()
-        model.fit(X_train,y_train)
-        
-        predictions = model.predict(X_test)
+#         X_train, X_test, y_train, y_test = model_selection.train_test_split(array[:,:-1],
+#                                                 array[:,-1],train_size=train_size)
+#         model = LogisticRegression()
+#         model.fit(X_train,y_train)
+#         
+#         predictions = model.predict(X_test)
 
-        print("---------------------")
-        print("Train data size: %d." % X_train.shape[0])
-        print("Test data size: %d." % X_test.shape[0])
-        print("Accuracy: %.3f %%" % (metrics.accuracy_score(y_test, predictions)*100))
-        print("Log loss: %.3f" % metrics.log_loss(y_test, predictions))
-        print("---------------------")
+        model = LogisticRegression()
+        folds = int(num_data_pts/train_size)
+        scoring = {'acc': 'accuracy',
+                   'n_loss':'neg_log_loss',
+                   'msqerr':'neg_mean_squared_error',
+                   'r2':'r2'}
+        scores = model_selection.cross_validate(model, X, y, scoring=scoring,
+                                 cv=folds, return_train_score=True)
+
+        scores['test_n_loss'].mean()
+
+#         print("---------------------")
+#         print("Train data size: %d." % X_train.shape[0])
+#         print("Test data size: %d." % X_test.shape[0])
+#         print("Accuracy: %.3f %%" % (metrics.accuracy_score(y_test, predictions)*100))
+#         print("Log loss: %.3f" % metrics.log_loss(y_test, predictions))
+#         print("---------------------")
 
 if __name__=='__main__':
     main()
